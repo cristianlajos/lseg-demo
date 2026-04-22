@@ -37,15 +37,126 @@ pipeline:
               os: Linux
           execution:
             steps:
+              - parallel:
+                  - step:
+                      type: Run
+                      name: unit-tests
+                      identifier: unit_tests
+                      spec:
+                        connectorRef: cristianlajos
+                        image: python:3.12-slim
+                        shell: Sh
+                        command: |
+                          pip install pytest flask --quiet
+                          cat > test_app.py << 'EOF'
+                          from app import app
+                          def test_home():
+                              client = app.test_client()
+                              response = client.get("/")
+                              assert response.status_code == 200
+                          def test_health():
+                              client = app.test_client()
+                              response = client.get("/health")
+                              assert response.status_code == 200
+                          EOF
+                          pytest test_app.py -v
+                  - step:
+                      type: Run
+                      name: lint
+                      identifier: lint
+                      spec:
+                        connectorRef: cristianlajos
+                        image: python:3.12-slim
+                        shell: Sh
+                        command: |
+                          pip install flake8 --quiet
+                          flake8 app.py --max-line-length=100 --statistics
+                          echo "Lint passed."
+                  - step:
+                      type: Run
+                      name: security-scan
+                      identifier: security_scan
+                      spec:
+                        connectorRef: cristianlajos
+                        image: python:3.12-slim
+                        shell: Sh
+                        command: |
+                          # Mock security scan — simulates finding vulnerabilities
+                          # Set VULN_COUNT to 3 to trigger the Teams notification
+                          # Change to 0 on a clean run to show the conditional NOT firing
+                          echo "Running security scan..."
+                          echo "Scanning image: cristianlajos/harness-demo-app"
+                          echo "Found 3 vulnerabilities (2 medium, 1 high)"
+                          export VULN_COUNT=3
+                          echo "VULN_COUNT=$VULN_COUNT"
+                        envVariables:
+                          VULN_COUNT: "3"
+                        outputVariables:
+                          - name: VULN_COUNT
               - step:
                   type: Run
-                  name: TBD
-                  identifier: Run
+                  name: notify-teams
+                  identifier: notify_teams
+                  when:
+                    stageStatus: Success
+                    condition: <+execution.steps.security_scan.output.outputVariables.VULN_COUNT> > 0
                   spec:
                     connectorRef: cristianlajos
-                    image: ubuntu:24.10
+                    image: python:3.12-slim
                     shell: Sh
-                    command: echo "Test"
+                    command: |
+                      pip install requests --quiet
+                      python3 << 'EOF'
+                      import requests, json, os
+
+                      webhook_url = os.environ["TEAMS_WEBHOOK_URL"]
+                      vuln_count = os.environ["VULN_COUNT"]
+                      pipeline_name = os.environ["PIPELINE_NAME"]
+                      triggered_by = os.environ["TRIGGERED_BY"]
+                      build_number = os.environ["BUILD_NUMBER"]
+
+                      payload = {
+                        "type": "message",
+                        "attachments": [
+                          {
+                            "contentType": "application/vnd.microsoft.card.adaptive",
+                            "content": {
+                              "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+                              "type": "AdaptiveCard",
+                              "version": "1.4",
+                              "body": [
+                                {
+                                  "type": "TextBlock",
+                                  "text": "🚨 Security Scan Alert",
+                                  "weight": "Bolder",
+                                  "size": "Medium",
+                                  "color": "Attention"
+                                },
+                                {
+                                  "type": "FactSet",
+                                  "facts": [
+                                    {"title": "Pipeline", "value": pipeline_name},
+                                    {"title": "Build", "value": f"#{build_number}"},
+                                    {"title": "Triggered by", "value": triggered_by},
+                                    {"title": "Vulnerabilities found", "value": vuln_count},
+                                    {"title": "Action required", "value": "Review before promoting to production"}
+                                  ]
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+
+                      response = requests.post(webhook_url, json=payload)
+                      print(f"Teams notification sent — status: {response.status_code}")
+                      EOF
+                    envVariables:
+                      TEAMS_WEBHOOK_URL: <+secrets.getValue("TEAMS_WEBHOOK_URL")>
+                      VULN_COUNT: <+execution.steps.security_scan.output.outputVariables.VULN_COUNT>
+                      PIPELINE_NAME: <+pipeline.name>
+                      TRIGGERED_BY: <+pipeline.triggeredBy.name>
+                      BUILD_NUMBER: <+pipeline.sequenceId>
     - stage:
         name: Deploy Staging
         identifier: Deploy_Staging
