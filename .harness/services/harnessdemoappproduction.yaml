@@ -3,3 +3,35 @@ service:
   identifier: harnessdemoappproduction
   orgIdentifier: DOPS_Labs
   projectIdentifier: crs_sandbox
+  serviceDefinition:
+    spec:
+      manifests:
+        - manifest:
+            identifier: k8smanifest
+            type: K8sManifest
+            spec:
+              store:
+                type: Github
+                spec:
+                  connectorRef: crsgithubconnector
+                  gitFetchType: Branch
+                  paths:
+                    - k8s/production.yaml
+                  repoName: lseg-demo
+                  branch: master
+              valuesPaths:
+                - k8s/values.yaml
+              skipResourceVersioning: false
+              enableDeclarativeRollback: false
+      artifacts:
+        primary:
+          primaryArtifactRef: DockerhubArtifact
+          sources:
+            - spec:
+                connectorRef: cristianlajos
+                imagePath: cristianlajos/harness-demo-app
+                tag: <+pipeline.sequenceId>
+                digest: ""
+              identifier: DockerhubArtifact
+              type: DockerRegistry
+    type: Kubernetes
