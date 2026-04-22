@@ -23,7 +23,7 @@ service:
               enableDeclarativeRollback: false
       artifacts:
         primary:
-          primaryArtifactRef: <+input>
+          primaryArtifactRef: <+pipeline.sequenceId>
           sources:
             - spec:
                 connectorRef: cristianlajos
