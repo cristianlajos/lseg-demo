@@ -1,0 +1,6 @@
+environment:
+  name: staging
+  identifier: staging
+  orgIdentifier: DOPS_Labs
+  projectIdentifier: crs_sandbox
+  type: PreProduction

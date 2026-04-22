@@ -1,0 +1,13 @@
+infrastructureDefinition:
+  name: production-infra
+  identifier: productioninfra
+  orgIdentifier: DOPS_Labs
+  projectIdentifier: crs_sandbox
+  environmentRef: production
+  deploymentType: Kubernetes
+  type: KubernetesDirect
+  spec:
+    connectorRef: k8sconnector
+    namespace: production
+    releaseName: release-<+INFRA_KEY_SHORT_ID>
+  allowSimultaneousDeployments: false

@@ -1,0 +1,13 @@
+infrastructureDefinition:
+  name: staging-infra
+  identifier: staginginfra
+  orgIdentifier: DOPS_Labs
+  projectIdentifier: crs_sandbox
+  environmentRef: staging
+  deploymentType: Kubernetes
+  type: KubernetesDirect
+  spec:
+    connectorRef: k8sconnector
+    namespace: staging
+    releaseName: release-<+INFRA_KEY_SHORT_ID>
+  allowSimultaneousDeployments: false

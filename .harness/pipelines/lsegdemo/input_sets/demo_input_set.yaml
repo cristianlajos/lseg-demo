@@ -1,0 +1,63 @@
+inputSet:
+  pipeline:
+    identifier: lsegdemo
+    properties:
+      ci:
+        codebase:
+          build:
+            spec:
+              branch: master
+            type: branch
+    stages:
+      - stage:
+          identifier: Deploy_Staging
+          template:
+            templateInputs:
+              type: Deployment
+              spec:
+                environment:
+                  environmentRef: staging
+                  infrastructureDefinitions:
+                    - identifier: staginginfra
+                service:
+                  serviceRef: harnessdemoapp
+                  serviceInputs:
+                    serviceDefinition:
+                      type: Kubernetes
+                      spec:
+                        artifacts:
+                          primary:
+                            primaryArtifactRef: DockerhubArtifact
+                            sources:
+                              - identifier: DockerhubArtifact
+                                type: DockerRegistry
+                                spec:
+                                  tag: <+pipeline.stages.Build.spec.execution.steps.build_and_push.output.outputVariables.IMAGE_TAG>
+      - stage:
+          identifier: Deploy_Production
+          template:
+            templateInputs:
+              type: Deployment
+              spec:
+                environment:
+                  environmentRef: production
+                  infrastructureDefinitions:
+                    - identifier: productioninfra
+                service:
+                  serviceRef: harnessdemoapp
+                  serviceInputs:
+                    serviceDefinition:
+                      type: Kubernetes
+                      spec:
+                        artifacts:
+                          primary:
+                            primaryArtifactRef: DockerhubArtifact
+                            sources:
+                              - identifier: DockerhubArtifact
+                                type: DockerRegistry
+                                spec:
+                                  tag: <+pipeline.stages.Build.spec.execution.steps.build_and_push.output.outputVariables.IMAGE_TAG>
+  name: demo_input_set
+  identifier: demo_input_set
+  orgIdentifier: DOPS_Labs
+  projectIdentifier: crs_sandbox
