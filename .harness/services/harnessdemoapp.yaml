@@ -23,12 +23,12 @@ service:
               enableDeclarativeRollback: false
       artifacts:
         primary:
-          primaryArtifactRef: <+pipeline.sequenceId>
+          primaryArtifactRef: <+input>
           sources:
             - spec:
                 connectorRef: cristianlajos
                 imagePath: cristianlajos/harness-demo-app
-                tag: <+input>
+                tag: <+pipeline.sequenceId>
                 digest: ""
               identifier: DockerhubArtifact
               type: DockerRegistry
