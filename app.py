@@ -2,6 +2,7 @@
 from flask import Flask
 app = Flask(__name__)
 
+
 @app.route("/")
 def home():
     return "<h1>harness-demo-app</h1><p>Deployed via Harness CI/CD</p>", 200
