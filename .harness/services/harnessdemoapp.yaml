@@ -19,6 +19,8 @@ service:
                     - k8s/
                   repoName: lseg-demo
                   branch: master
+              valuesPaths:
+                - k8s/values.yaml
               skipResourceVersioning: false
               enableDeclarativeRollback: false
       artifacts:
