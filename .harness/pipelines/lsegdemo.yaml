@@ -66,7 +66,7 @@ pipeline:
                       identifier: lint
                       spec:
                         connectorRef: cristianlajos
-                        image: randomimage:12
+                        image: python:3.12-slim
                         shell: Sh
                         command: |-
                           pip install flake8 --quiet
@@ -99,12 +99,12 @@ pipeline:
                   identifier: notify_teams
                   when:
                     stageStatus: Success
-                    condition: <+execution.steps.security_scan.output.outputVariables.VULN_COUNT> > 0
+                    condition: <+execution.steps.security_scan.output.outputVariables.VULN_COUNT> > 5
                   spec:
                     connectorRef: cristianlajos
                     image: python:3.12-slim
                     shell: Sh
-                    command: |
+                    command: |-
                       pip install requests --quiet
                       python3 << 'EOF'
                       import requests, json, os
@@ -175,6 +175,30 @@ pipeline:
               service:
                 serviceRef: <+input>
                 serviceInputs: <+input>
+    - stage:
+        name: Approval
+        identifier: Approval
+        description: ""
+        type: Approval
+        spec:
+          execution:
+            steps:
+              - step:
+                  name: Promote to Production
+                  identifier: Promote_to_Production
+                  type: HarnessApproval
+                  timeout: 1d
+                  spec:
+                    approvalMessage: Review staging deployment before promoting to production
+                    includePipelineExecutionHistory: true
+                    approvers:
+                      minimumCount: 1
+                      disallowPipelineExecutor: false
+                      userGroups:
+                        - _project_all_users
+                    isAutoRejectEnabled: false
+                    approverInputs: []
+        tags: {}
     - stage:
         name: Deploy Production
         identifier: Deploy_Production
