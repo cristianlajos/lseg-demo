@@ -1,0 +1,37 @@
+template:
+  name: build-standard-
+  identifier: buildstandard
+  versionLabel: 1.0.0
+  type: Stage
+  projectIdentifier: crs_sandbox
+  orgIdentifier: DOPS_Labs
+  tags: {}
+  spec:
+    type: CI
+    spec:
+      cloneCodebase: true
+      caching:
+        enabled: false
+        override: false
+        paths: []
+      buildIntelligence:
+        enabled: false
+      infrastructure:
+        type: KubernetesDirect
+        spec:
+          connectorRef: k8sconnector
+          namespace: harness-delegate-ng
+          automountServiceAccountToken: true
+          nodeSelector: {}
+          os: Linux
+      execution:
+        steps:
+          - step:
+              type: BuildAndPushDockerRegistry
+              name: build-and-push
+              identifier: buildandpush
+              spec:
+                connectorRef: cristianlajos
+                repo: cristianlajos/harness-demo-app
+                tags:
+                  - <+pipeline.sequenceId>
