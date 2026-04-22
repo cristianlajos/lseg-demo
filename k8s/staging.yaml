@@ -18,6 +18,9 @@ spec:
           image: {{.Values.image}}
           ports:
             - containerPort: 5000
+      env:
+        - name: APP_ENV
+          value: "Staging"
 ---
 apiVersion: v1
 kind: Service
