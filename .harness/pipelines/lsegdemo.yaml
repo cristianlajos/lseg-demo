@@ -1,0 +1,108 @@
+pipeline:
+  name: lseg-demo
+  identifier: lsegdemo
+  projectIdentifier: crs_sandbox
+  orgIdentifier: DOPS_Labs
+  tags: {}
+  properties:
+    ci:
+      codebase:
+        connectorRef: crsgithubconnector
+        repoName: lseg-demo
+        build: <+input>
+  stages:
+    - stage:
+        name: Build
+        identifier: Build
+        template:
+          templateRef: buildstandard
+          versionLabel: 1.0.0
+    - stage:
+        name: Test
+        identifier: Test
+        description: ""
+        type: CI
+        spec:
+          cloneCodebase: true
+          caching:
+            enabled: true
+            override: false
+          infrastructure:
+            type: KubernetesDirect
+            spec:
+              connectorRef: k8sconnector
+              namespace: harness-delegate-ng
+              automountServiceAccountToken: true
+              nodeSelector: {}
+              os: Linux
+          execution:
+            steps:
+              - step:
+                  type: Run
+                  name: TBD
+                  identifier: Run
+                  spec:
+                    connectorRef: cristianlajos
+                    image: ubuntu:24.10
+                    shell: Sh
+                    command: echo "Test"
+    - stage:
+        name: Deploy Staging
+        identifier: Deploy_Staging
+        tags: {}
+        template:
+          templateRef: deployk8s
+          versionLabel: 1.0.0
+          templateInputs:
+            type: Deployment
+            spec:
+              environment:
+                environmentRef: <+input>
+                environmentInputs: <+input>
+                serviceOverrideInputs: <+input>
+                infrastructureDefinitions: <+input>
+              service:
+                serviceRef: <+input>
+                serviceInputs: <+input>
+    - stage:
+        name: Approval
+        identifier: Approval
+        description: ""
+        type: Approval
+        spec:
+          execution:
+            steps:
+              - step:
+                  name: Promote to Production
+                  identifier: Promote_to_Production
+                  type: HarnessApproval
+                  timeout: 1d
+                  spec:
+                    approvalMessage: Review staging deployment before promoting to production
+                    includePipelineExecutionHistory: true
+                    approvers:
+                      minimumCount: 1
+                      disallowPipelineExecutor: false
+                      userGroups:
+                        - _project_all_users
+                    isAutoRejectEnabled: false
+                    approverInputs: []
+        tags: {}
+    - stage:
+        name: Deploy Production
+        identifier: Deploy_Production
+        tags: {}
+        template:
+          templateRef: deployk8s
+          versionLabel: 1.0.0
+          templateInputs:
+            type: Deployment
+            spec:
+              environment:
+                environmentRef: <+input>
+                environmentInputs: <+input>
+                serviceOverrideInputs: <+input>
+                infrastructureDefinitions: <+input>
+              service:
+                serviceRef: <+input>
+                serviceInputs: <+input>
