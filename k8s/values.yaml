@@ -1,2 +1,1 @@
 image: <+artifact.image>
-tag: <+artifact.tag>
