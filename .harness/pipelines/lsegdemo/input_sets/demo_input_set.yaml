@@ -1,13 +1,18 @@
 inputSet:
+  name: demo_input_set
+  tags: {}
+  identifier: demo_input_set
+  orgIdentifier: DOPS_Labs
+  projectIdentifier: crs_sandbox
   pipeline:
     identifier: lsegdemo
     properties:
       ci:
         codebase:
           build:
+            type: branch
             spec:
               branch: master
-            type: branch
     stages:
       - stage:
           identifier: Deploy_Staging
@@ -32,7 +37,7 @@ inputSet:
                               - identifier: DockerhubArtifact
                                 type: DockerRegistry
                                 spec:
-                                  tag: <+pipeline.stages.Build.spec.execution.steps.build_and_push.output.outputVariables.IMAGE_TAG>
+                                  tag: <+pipeline.sequenceId>
       - stage:
           identifier: Deploy_Production
           template:
@@ -56,8 +61,4 @@ inputSet:
                               - identifier: DockerhubArtifact
                                 type: DockerRegistry
                                 spec:
-                                  tag: <+pipeline.stages.Build.spec.execution.steps.build_and_push.output.outputVariables.IMAGE_TAG>
-  name: demo_input_set
-  identifier: demo_input_set
-  orgIdentifier: DOPS_Labs
-  projectIdentifier: crs_sandbox
+                                  tag: <+pipeline.sequenceId>
