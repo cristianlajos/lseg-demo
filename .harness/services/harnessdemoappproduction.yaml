@@ -1,0 +1,5 @@
+service:
+  name: harness-demo-app-production
+  identifier: harnessdemoappproduction
+  orgIdentifier: DOPS_Labs
+  projectIdentifier: crs_sandbox
