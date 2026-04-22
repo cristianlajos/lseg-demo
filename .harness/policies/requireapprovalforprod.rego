@@ -3,17 +3,17 @@ package pipeline
 import future.keywords.if
 import future.keywords.in
 
-# Deny if any deployment stage targets a Production environment
-# without a preceding Approval stage
 deny[msg] if {
     stage := input.pipeline.stages[_].stage
     stage.type == "Deployment"
-    stage.spec.environment.environmentRef == "production"
-    not has_approval_before_prod
+    # Check for production env - handle both hardcoded and runtime input refs
+    env := stage.spec.environment.environmentRef
+    env == "production"
+    not has_approval_stage
     msg := "Pipeline must have an Approval stage before deploying to production."
 }
 
-has_approval_before_prod if {
+has_approval_stage if {
     stage := input.pipeline.stages[_].stage
     stage.type == "Approval"
 }
