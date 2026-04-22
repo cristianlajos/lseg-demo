@@ -26,18 +26,6 @@ inputSet:
                     - identifier: staginginfra
                 service:
                   serviceRef: harnessdemoapp
-                  serviceInputs:
-                    serviceDefinition:
-                      type: Kubernetes
-                      spec:
-                        artifacts:
-                          primary:
-                            primaryArtifactRef: DockerhubArtifact
-                            sources:
-                              - identifier: DockerhubArtifact
-                                type: DockerRegistry
-                                spec:
-                                  tag: <+pipeline.sequenceId>
       - stage:
           identifier: Deploy_Production
           template:
@@ -49,16 +37,4 @@ inputSet:
                   infrastructureDefinitions:
                     - identifier: productioninfra
                 service:
-                  serviceRef: harnessdemoapp
-                  serviceInputs:
-                    serviceDefinition:
-                      type: Kubernetes
-                      spec:
-                        artifacts:
-                          primary:
-                            primaryArtifactRef: DockerhubArtifact
-                            sources:
-                              - identifier: DockerhubArtifact
-                                type: DockerRegistry
-                                spec:
-                                  tag: <+pipeline.sequenceId>
+                  serviceRef: harnessdemoappproduction
