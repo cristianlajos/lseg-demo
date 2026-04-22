@@ -1,4 +1,3 @@
-# k8s/staging.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -29,7 +28,7 @@ spec:
   selector:
     app: harness-demo-app
   ports:
-    - port: 80
+    - name: http
+      port: 80
       targetPort: 5000
   type: ClusterIP
-
