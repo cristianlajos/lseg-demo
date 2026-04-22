@@ -66,9 +66,9 @@ pipeline:
                       identifier: lint
                       spec:
                         connectorRef: cristianlajos
-                        image: python:3.12-slim
+                        image: randomuser/someimage:latest
                         shell: Sh
-                        command: |
+                        command: |-
                           pip install flake8 --quiet
                           flake8 app.py --max-line-length=100 --statistics
                           echo "Lint passed."
