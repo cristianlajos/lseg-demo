@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: harness-demo-app
-          image: cristianlajos/harness-demo-app:<+artifact.tag>
+          image: <+values.image>:<+values.tag>
           ports:
             - containerPort: 5000
 ---
