@@ -176,30 +176,6 @@ pipeline:
                 serviceRef: <+input>
                 serviceInputs: <+input>
     - stage:
-        name: Approval
-        identifier: Approval
-        description: ""
-        type: Approval
-        spec:
-          execution:
-            steps:
-              - step:
-                  name: Promote to Production
-                  identifier: Promote_to_Production
-                  type: HarnessApproval
-                  timeout: 1d
-                  spec:
-                    approvalMessage: Review staging deployment before promoting to production
-                    includePipelineExecutionHistory: true
-                    approvers:
-                      minimumCount: 1
-                      disallowPipelineExecutor: false
-                      userGroups:
-                        - _project_all_users
-                    isAutoRejectEnabled: false
-                    approverInputs: []
-        tags: {}
-    - stage:
         name: Deploy Production
         identifier: Deploy_Production
         tags: {}
